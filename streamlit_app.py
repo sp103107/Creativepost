@@ -1,5 +1,9 @@
 import streamlit as st
 from datetime import datetime
+from content_pipeline.generation.content_generator import ContentGenerator
+
+# Initialize ContentGenerator
+content_generator = ContentGenerator()
 
 # Page config
 st.set_page_config(page_title="Creative Writing AI Agent", layout="wide")
@@ -25,7 +29,10 @@ if page == "Create Content":
         
         # Content details
         title = st.text_input("Title")
-        content = st.text_area("Content", height=300)
+        prompt = st.text_area("Content Brief", 
+            "Describe what you want to write about...",
+            height=100
+        )
         
         # Tags and categories
         tags = st.text_input("Tags (comma-separated)")
@@ -42,22 +49,54 @@ if page == "Create Content":
                 "Content Tone",
                 options=["Professional", "Casual", "Enthusiastic", "Serious"]
             )
+            max_length = st.slider("Maximum Length (words)", 100, 1000, 500)
             
         # Submit button
         submitted = st.form_submit_button("Create Content")
         
         if submitted:
-            st.success("Content created successfully!")
-            st.json({
-                "type": content_type,
-                "title": title,
-                "content": content,
-                "tags": tags.split(",") if tags else [],
-                "category": category,
-                "created_at": str(datetime.now()),
-                "ai_enhanced": use_ai,
-                "tone": tone if use_ai else None
-            })
+            try:
+                if use_ai:
+                    with st.spinner("Generating content..."):
+                        generated_content = content_generator.generate_content(
+                            content_type=content_type.lower(),
+                            prompt=prompt,
+                            tone=tone.lower(),
+                            max_length=max_length
+                        )
+                        
+                        # Store the content
+                        content = generated_content
+                else:
+                    content = prompt
+
+                # Display the content
+                st.success("Content created successfully!")
+                st.markdown("### Generated Content")
+                st.write(content)
+                
+                # Show metadata
+                st.json({
+                    "type": content_type,
+                    "title": title,
+                    "content": content,
+                    "tags": tags.split(",") if tags else [],
+                    "category": category,
+                    "created_at": str(datetime.now()),
+                    "ai_enhanced": use_ai,
+                    "tone": tone if use_ai else None
+                })
+                
+                # Add download button
+                st.download_button(
+                    "Download Content",
+                    content,
+                    file_name=f"{title.lower().replace(' ', '_')}_{datetime.now().strftime('%Y%m%d')}.txt",
+                    mime="text/plain"
+                )
+                
+            except Exception as e:
+                st.error(f"An error occurred: {str(e)}")
 
 elif page == "View Posts":
     st.header("Your Posts")
@@ -76,8 +115,7 @@ elif page == "View Posts":
         )
     
     # Sample posts (replace with actual data)
-    st.write("Sample Post 1")
-    st.write("Sample Post 2")
+    st.info("This feature will be implemented in the next version")
 
 else:  # Analytics
     st.header("Analytics Dashboard")
@@ -93,6 +131,7 @@ else:  # Analytics
     
     # Sample chart
     st.line_chart({"data": [1, 5, 2, 6, 2, 1]})
+    st.info("Full analytics will be available in the next version")
 
 # Footer
 st.markdown("---")
