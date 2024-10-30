@@ -1,0 +1,47 @@
+Metadata-Version: 2.1
+Name: content-pipeline
+Version: 0.1.0
+Summary: A comprehensive content generation and processing pipeline
+Home-page: https://github.com/yourusername/content-pipeline
+Author: Your Name
+Author-email: your.email@example.com
+Classifier: Programming Language :: Python :: 3.9
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+
+# Content Pipeline
+
+A comprehensive content generation and processing pipeline.
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+## Usage
+
+```python
+from content_pipeline.generation import ContentCreator
+
+creator = ContentCreator()
+content = await creator.create_content(
+    content_type="blog_post",
+    prompt="Write about AI"
+)
+```
+
+## Development
+
+1. Clone the repository
+2. Install development dependencies:
+   ```bash
+   pip install -e ".[dev]"
+   ```
+3. Run tests:
+   ```bash
+   pytest tests/
+   ```
